@@ -1,0 +1,11 @@
+When debian stuck at grub> prompt
+---------------------------------
+boot using live CD
+sudo mount /dev/sda3 /mnt where sda3 is debian partition
+sudo mount /dev/sda1 /mnt/boot/efi	where sda1 is the EFI partition
+sudo mount --bind /dev	/mnt/dev
+sudo mount --bind /proc	/mnt/proc
+sudo mount --bind /sys	/mnt/sys
+sudo chroot /mnt
+grub-install /dev/sda
+update-grub
