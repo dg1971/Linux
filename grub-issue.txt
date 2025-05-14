@@ -10,3 +10,5 @@ sudo mount --bind /sys	/mnt/sys
 sudo chroot /mnt
 grub-install /dev/sda
 update-grub
+
+If boot fails, change boot order in BIOS.
