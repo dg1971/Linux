@@ -1,0 +1,42 @@
+Install Debian 13.2 zabbix_server
+
+wget https://cdn.zabbix.com/zabbix/sources/stable/7.0/zabbix-7.0.0.tar.gz
+tar -zxvf zabbix-7.0.0.tar.gz
+cd zabbix-7.0.0
+
+apt install libsqlite3-dev fping
+./configure --enable-proxy --with-sqlite3 --with-net-snmp --with-libevent --with-openssl --with-libpcre2
+
+make install
+
+groupadd --system zabbix
+useradd --system -g zabbix -d /usr/lib/zabbix -s /sbin/nologin -c "Zabbix Monitoring" zabbix
+mkdir -p /var/lib/zabbix
+chown -R zabbix:zabbix /var/lib/zabbix
+
+mkdir -p /var/log/zabbix /var/run/zabbix
+chown -R zabbix:zabbix /var/log/zabbix /var/run/zabbix
+
+/usr/sbin/zabbix_server -c /etc/zabbix/zabbix_server.conf
+
+
+vi /etc/systemd/system/zabbix-proxy.service
+
+[Unit]
+Description=Zabbix Proxy
+After=syslog.target network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/zabbix_proxy -c /usr/local/etc/zabbix_proxy.conf
+PIDFile=/run/zabbix/zabbix_proxy.pid
+ExecReload=/usr/local/sbin/zabbix_proxy -R config_cache_reload
+RemainAfterExit=yes
+PIDFile=/run/zabbix/zabbix_proxy.pid
+
+[Install]
+WantedBy=multi-user.target
+
+systemctl daemon-reload
+systemctl enable zabbix-proxy
+systemctl start zabbix-proxy
